@@ -1,8 +1,12 @@
 import { createApp } from './app.js';
 import { env } from './env.js';
 import { verifyGroqModels } from './ai/client.js';
+import { ensureDatabaseReady } from './db-init.js';
 
 const app = createApp();
+
+// Initialize database schema and initial seed data before listening
+await ensureDatabaseReady();
 
 app.listen(env.PORT, async () => {
   console.log(`\n========================================`);

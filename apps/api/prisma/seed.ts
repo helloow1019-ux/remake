@@ -750,7 +750,7 @@ async function main() {
     }
 
     await prisma.ideaStep.deleteMany({ where: { ideaId: createdIdea.id } });
-    for (const s of idea.steps) {
+    for (const s of idea.steps as any[]) {
       await prisma.ideaStep.create({
         data: {
           ideaId: createdIdea.id,
