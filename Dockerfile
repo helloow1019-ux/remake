@@ -1,6 +1,9 @@
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
+
+# Install OpenSSL and build essentials
+RUN apt-get update -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Copy root manifest and workspaces
 COPY package*.json ./
@@ -28,9 +31,12 @@ RUN npm run build --workspace=apps/api
 RUN npm run build --workspace=apps/web
 
 # Production Runner
-FROM node:20-alpine AS runner
+FROM node:20-bookworm-slim AS runner
 
 WORKDIR /app
+
+# Install OpenSSL in the runner image so Prisma query engine loads reliably
+RUN apt-get update -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 ENV PORT=4000
@@ -46,4 +52,3 @@ COPY --from=builder /app/scripts ./scripts
 EXPOSE 4000
 
 CMD ["sh", "-c", "node scripts/setup.mjs && node apps/api/dist/index.js"]
-
