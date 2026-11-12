@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #FAF6ED;
+  --paper-2: #F0E6D2;
+  --ink: #18221D;
+  --leaf: #247A4B;
+  --leaf-hover: #1D643D;
+  --marigold: #F59E0B;
+  --marigold-hover: #D97706;
+  --chili: #E14D2A;
+  --sky: #0284C7;
+  --card: #FFFFFF;
+}
+
+.dark {
+  --paper: #121815;
+  --paper-2: #1A231F;
+  --ink: #F7F5EE;
+  --leaf: #45D084;
+  --leaf-hover: #38BD73;
+  --marigold: #FBBF24;
+  --marigold-hover: #F59E0B;
+  --chili: #FB7185;
+  --sky: #38BDF8;
+  --card: #1C2722;
+}
+
+/* Paper textures, grids, and craft effects */
+body {
+  font-family: 'DM Sans', Inter, system-ui, -apple-system, sans-serif;
+  background-color: var(--paper);
+  color: var(--ink);
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[dir="rtl"] {
+  font-family: 'Noto Nastaliq Urdu', 'Noto Naskh Arabic', serif;
+  line-height: 2.1;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4 {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  line-height: 2.0;
+}
+
+/* Tactile Craft Details & Workbench Cutting Mat */
+.cutting-mat-grid {
+  background-image:
+    linear-gradient(to right, rgba(36, 122, 75, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(36, 122, 75, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.dark .cutting-mat-grid {
+  background-image:
+    linear-gradient(to right, rgba(69, 208, 132, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(69, 208, 132, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.kraft-texture {
+  background-image: radial-gradient(rgba(24, 34, 29, 0.05) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+.dark .kraft-texture {
+  background-image: radial-gradient(rgba(247, 245, 238, 0.04) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+/* Washi tape stickers with depth */
+.tape-corner {
+  position: relative;
+}
+
+.tape-corner::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1.5deg);
+  width: 58px;
+  height: 20px;
+  background: rgba(245, 158, 11, 0.65);
+  border-left: 2px dashed rgba(24, 34, 29, 0.2);
+  border-right: 2px dashed rgba(24, 34, 29, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 10;
+  backdrop-filter: blur(1px);
+}
+
+.tape-corner-right::before {
+  left: auto;
+  right: 20px;
+  transform: rotate(2.5deg);
+}
+
+/* Caution Hazard Stripes */
+.bg-stripes-caution {
+  background: repeating-linear-gradient(-45deg,
+      #F59E0B,
+      #F59E0B 12px,
+      #18221D 12px,
+      #18221D 24px);
+}
+
+.stitch-border {
+  border: 2px dashed var(--sky);
+}
+
+.stitch-border-leaf {
+  border: 2px dashed var(--leaf);
+}
+
+.stamp-border {
+  border: 2px solid currentColor;
+  box-shadow: 2px 2px 0 currentColor;
+}
+
+.torn-edge {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 98%, 95% 100%, 90% 98%, 85% 100%, 80% 98%, 75% 100%,
+      70% 98%, 65% 100%, 60% 98%, 55% 100%, 50% 98%, 45% 100%, 40% 98%, 35% 100%,
+      30% 98%, 25% 100%, 20% 98%, 15% 100%, 10% 98%, 5% 100%, 0% 98%);
+}
+
+/* Custom Scrollbar for Maker aesthetics */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(24, 34, 29, 0.18);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(247, 245, 238, 0.18);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(24, 34, 29, 0.35);
+}
+
+/* Reduced motion support */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001s !important;
+}

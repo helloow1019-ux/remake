@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.db
+*.db-journal
+.env
+.env.*
+.env.local
+!*.env.example
+!**/.env.example
+uploads/
+*.tsbuildinfo
+.turbo
+coverage/
+playwright-report/
+test-results/
+remake-pack/

@@ -1,0 +1,24 @@
+{
+  "name": "remake",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/api & npm run dev --workspace=apps/web",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=packages/shared && npm run build --workspace=apps/api && npm run build --workspace=apps/web",
+    "start": "npm run start --workspace=apps/api",
+    "setup": "node scripts/setup.mjs",
+    "seed": "npm run seed --workspace=apps/api",
+    "seed:clean-demo": "npm run seed:clean-demo --workspace=apps/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:e2e": "npm run test:e2e --workspace=apps/web",
+    "ai:smoke": "npm run ai:smoke --workspace=apps/api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

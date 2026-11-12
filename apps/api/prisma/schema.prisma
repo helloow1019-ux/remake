@@ -1,0 +1,254 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String       @id @default(cuid())
+  isGuest      Boolean      @default(true)
+  email        String?      @unique
+  passwordHash String?
+  name         String       @default("Maker")
+  role         String       @default("USER") // USER | ADMIN
+  locale       String       @default("en")   // en | ur
+  theme        String       @default("system")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt @default(now())
+  scans        Scan[]
+  makes        Make[]
+  saves        Save[]
+  logs         ImpactLog[]
+  badges       UserBadge[]
+  likes        Like[]
+  suggestions  Suggestion[]
+}
+
+model WasteType {
+  id            String      @id @default(cuid())
+  slug          String      @unique
+  nameEn        String
+  nameUr        String
+  icon          String
+  gramsPerPiece Int
+  co2PerKg      Float
+  factorSource  String
+  sortOrder     Int         @default(0)
+  active        Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt @default(now())
+  ideas         IdeaWaste[]
+  logs          ImpactLog[]
+}
+
+model Idea {
+  id               String         @id @default(cuid())
+  slug             String         @unique
+  status           String         @default("UNTESTED") // TESTED | UNTESTED | AI_DRAFT | ARCHIVED
+  published        Boolean        @default(true)
+  titleEn          String
+  titleUr          String?
+  summaryEn        String
+  summaryUr        String?
+  difficulty       Int            // 1 easy, 2 medium, 3 hard
+  timeMinutes      Int
+  costPkr          Int
+  sellPricePkr     Int?
+  safetyNoteEn     String
+  safetyNoteUr     String?
+  coverImage       String?
+  wasteGrams       Int            @default(0)
+  co2SavedG        Int            @default(0)
+  isSampleData     Boolean        @default(false)
+  source           String         @default("ADMIN") // ADMIN | AI | SHEET
+  scanId           String?
+  scan             Scan?          @relation(fields: [scanId], references: [id], onDelete: SetNull)
+  ownerUserId      String?
+  makesCount       Int            @default(0)
+  workedCount      Int            @default(0)
+  ratingSum        Int            @default(0)
+  ratingCount      Int            @default(0)
+  timeFeltSum      Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt @default(now())
+  waste            IdeaWaste[]
+  materials        IdeaMaterial[]
+  tools            IdeaTool[]
+  steps            IdeaStep[]
+  makes            Make[]
+  saves            Save[]
+
+  @@index([status, published])
+}
+
+model IdeaWaste {
+  id          String    @id @default(cuid())
+  ideaId      String
+  wasteTypeId String
+  pieces      Int       @default(1)
+  grams       Int
+  idea        Idea      @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  wasteType   WasteType @relation(fields: [wasteTypeId], references: [id])
+
+  @@index([wasteTypeId])
+}
+
+model IdeaMaterial {
+  id        String  @id @default(cuid())
+  ideaId    String
+  nameEn    String
+  nameUr    String?
+  quantity  String?
+  isWaste   Boolean @default(false)
+  sortOrder Int     @default(0)
+  idea      Idea    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+}
+
+model IdeaTool {
+  id        String  @id @default(cuid())
+  ideaId    String
+  nameEn    String
+  nameUr    String?
+  sortOrder Int     @default(0)
+  idea      Idea    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+}
+
+model IdeaStep {
+  id           String  @id @default(cuid())
+  ideaId       String
+  position     Int
+  textEn       String
+  textUr       String?
+  tipEn        String?
+  tipUr        String?
+  imageUrl     String?
+  timerSeconds Int?
+  idea         Idea    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@unique([ideaId, position])
+}
+
+model Scan {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  imagePaths String   // JSON array of image URLs
+  resultJson String   // Validated detection JSON
+  model      String
+  latencyMs  Int
+  mode       String   @default("LIVE") // LIVE | FALLBACK | MOCK
+  createdAt  DateTime @default(now())
+  ideas      Idea[]
+}
+
+model Make {
+  id                 String   @id @default(cuid())
+  userId             String
+  ideaId             String
+  outcome            String   // WORKED | PARTLY | FAILED
+  timeTakenMin       Int?
+  difficultyFelt     Int?
+  rating             Int?
+  notes              String?
+  photoUrl           String?
+  status             String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  rejectReason       String?
+  wasteGramsSnapshot Int
+  co2GramsSnapshot   Int
+  moneyPkrSnapshot   Int
+  createdAt          DateTime @default(now())
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idea               Idea     @relation(fields: [ideaId], references: [id])
+  likes              Like[]
+
+  @@index([userId, status])
+}
+
+model Like {
+  id     String @id @default(cuid())
+  userId String
+  makeId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  make   Make   @relation(fields: [makeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, makeId])
+}
+
+model Save {
+  id        String   @id @default(cuid())
+  userId    String
+  ideaId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idea      Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ideaId])
+}
+
+model ImpactLog {
+  id          String    @id @default(cuid())
+  userId      String
+  wasteTypeId String
+  pieces      Int       @default(1)
+  grams       Int
+  co2Grams    Int
+  note        String?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wasteType   WasteType @relation(fields: [wasteTypeId], references: [id])
+}
+
+model Badge {
+  id            String      @id @default(cuid())
+  key           String      @unique
+  nameEn        String
+  nameUr        String
+  descriptionEn String
+  descriptionUr String
+  icon          String
+  users         UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  awardedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+}
+
+model Product {
+  id             String  @id @default(cuid())
+  slug           String  @unique
+  nameEn         String
+  nameUr         String?
+  descriptionEn  String
+  pricePkr       Int
+  image          String?
+  wasteTypeSlugs String
+  wasteGrams     Int     @default(0)
+  co2SavedG      Int     @default(0)
+  active         Boolean @default(true)
+  sortOrder      Int     @default(0)
+}
+
+model Suggestion {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      String   // WASTE | IDEA
+  text      String
+  status    String   @default("NEW") // NEW | REVIEWED | ARCHIVED
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Setting {
+  key   String @id
+  value String
+}
