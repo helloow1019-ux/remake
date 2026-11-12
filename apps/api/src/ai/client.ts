@@ -33,8 +33,9 @@ export function getGroqClientForKey(apiKey: string): Groq {
 
 export function getGroqClient(): Groq | null {
   const keys = getAllGroqKeys();
-  if (keys.length === 0) return null;
-  return getGroqClientForKey(keys[0]);
+  const firstKey = keys[0];
+  if (!firstKey) return null;
+  return getGroqClientForKey(firstKey);
 }
 
 interface ModelHealth {
@@ -76,7 +77,8 @@ export async function verifyGroqModels(): Promise<ModelHealth> {
     return cachedHealth;
   }
 
-  const client = getGroqClientForKey(keys[0]);
+  const primaryKey = keys[0]!;
+  const client = getGroqClientForKey(primaryKey);
   const visionFallbacks = env.GROQ_VISION_FALLBACKS.split(',').map((s) => s.trim());
 
   try {
@@ -206,6 +208,7 @@ export async function callGroqCompletion(params: {
   // Try each API key in the pool (primary -> secondary -> extras)
   for (let keyIdx = 0; keyIdx < keys.length; keyIdx++) {
     const currentKey = keys[keyIdx];
+    if (!currentKey) continue;
     const client = getGroqClientForKey(currentKey);
 
     for (const modelCandidate of uniqueModels) {
