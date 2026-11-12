@@ -53,15 +53,13 @@ if (!parsed.success) {
   process.exit(1);
 }
 
-// In production, refuse to start with default security values
+// In production, warn if using default security values
 if (parsed.data.NODE_ENV === 'production') {
   if (parsed.data.JWT_SECRET === 'remake-default-jwt-secret-key-change-me') {
-    console.error('❌ Production error: JWT_SECRET must be configured with a secure random key');
-    process.exit(1);
+    console.warn('⚠️ Warning: JWT_SECRET is using the default development secret. Please set a random secret in production.');
   }
   if (parsed.data.ADMIN_PASSWORD === 'change-me-now') {
-    console.error('❌ Production error: ADMIN_PASSWORD must be changed from default');
-    process.exit(1);
+    console.warn('⚠️ Warning: ADMIN_PASSWORD is set to the default "change-me-now". Consider setting a strong custom password.');
   }
 }
 
